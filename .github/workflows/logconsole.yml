@@ -1,0 +1,64 @@
+# Builds the Taurus Log Console (tools/logconsole): the Windows XP styled window that IPLOG builds
+# of the app send their logs and crashes to. Windows gets one portable .exe, macOS a .dmg for both
+# Intel and Apple silicon. Run it by hand from the Actions tab, or let a change under tools/logconsole do it.
+name: Log Console
+
+on:
+  workflow_dispatch:
+  push:
+    paths: [tools/logconsole/**, harness/remotelog/**, tweak/Sources/Core/SGRemoteLog*, .github/workflows/logconsole.yml]
+  pull_request:
+    paths: [tools/logconsole/**, harness/remotelog/**, tweak/Sources/Core/SGRemoteLog*]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/logconsole/package-lock.json
+      - name: Install
+        working-directory: tools/logconsole
+        run: npm ci --no-audit --no-fund
+      - name: Test the phone's crash reporter against the console's server
+        working-directory: tools/logconsole
+        run: npm test
+
+  package:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            script: dist:win
+            name: TaurusLogConsole-windows
+            files: tools/logconsole/dist/*.exe
+          - os: macos-latest
+            script: dist:mac
+            name: TaurusLogConsole-mac
+            files: tools/logconsole/dist/*.dmg
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/logconsole/package-lock.json
+      - name: Install
+        working-directory: tools/logconsole
+        run: npm ci --no-audit --no-fund
+      - name: Package
+        working-directory: tools/logconsole
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run ${{ matrix.script }}
+      - uses: actions/upload-artifact@v5
+        with:
+          name: ${{ matrix.name }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error

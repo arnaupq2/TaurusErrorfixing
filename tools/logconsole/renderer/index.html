@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taurus Log Console</title>
+  <link rel="stylesheet" href="vendor/XP.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="window" id="win">
+  <div class="title-bar" id="titlebar">
+    <div class="title-bar-text"><span class="app-icon" aria-hidden="true"></span><span id="title-text">Taurus Log Console</span></div>
+    <div class="title-bar-controls">
+      <button aria-label="Minimize" data-win="minimize"></button>
+      <button aria-label="Maximize" data-win="maximize" id="btn-max"></button>
+      <button aria-label="Close" data-win="close"></button>
+    </div>
+  </div>
+
+  <div class="menubar" id="menubar" role="menubar">
+    <div class="menu" data-menu="file"><span class="menu-label">File</span>
+      <div class="menu-list">
+        <button data-act="save">Save log as…</button>
+        <button data-act="folder">Open logs folder</button>
+        <hr>
+        <button data-act="exit">Exit</button>
+      </div>
+    </div>
+    <div class="menu" data-menu="view"><span class="menu-label">View</span>
+      <div class="menu-list">
+        <button data-act="clear">Clear <i>Ctrl+L</i></button>
+        <hr>
+        <button data-act="toggle-times" id="m-times"></button>
+        <button data-act="toggle-wrap" id="m-wrap"></button>
+        <button data-act="toggle-crashonly" id="m-crash"></button>
+      </div>
+    </div>
+    <div class="menu" data-menu="help"><span class="menu-label">Help</span>
+      <div class="menu-list">
+        <button data-act="howto">How to connect…</button>
+        <button data-act="about">About Taurus Log Console</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button data-act="clear" title="Clear (Ctrl+L)">Clear</button>
+    <button data-act="save" title="Save the log to a file">Save…</button>
+    <button data-act="last-crash" id="btn-crash" title="Jump to the latest crash">Last crash</button>
+    <span class="sep"></span>
+    <label for="filter">Filter:</label>
+    <input id="filter" type="text" placeholder="text to look for" spellcheck="false">
+    <span class="grow"></span>
+    <div class="field-row"><input type="checkbox" id="autoscroll" checked><label for="autoscroll">Auto-scroll</label></div>
+  </div>
+
+  <div class="window-body body-split">
+    <div class="sidebar">
+      <fieldset>
+        <legend>Devices</legend>
+        <ul class="tree-view" id="devices"><li class="muted">No phone yet</li></ul>
+      </fieldset>
+      <fieldset>
+        <legend>This computer</legend>
+        <div id="listening" class="muted">Starting…</div>
+        <ul class="addr" id="addresses"></ul>
+        <p class="hint">Phones find this window by themselves. To pin an address, build with <code>IPLOG_HOST=</code> and one of these.</p>
+      </fieldset>
+    </div>
+    <div class="sunken-panel" id="log" aria-live="polite">
+      <div class="empty" id="empty">
+        <p><b>Waiting for a phone…</b></p>
+        <p>Build Taurus with <code>IPLOG=1</code>, install it, and open Spotify on the same Wi-Fi. Its log lines appear here; if the app crashes, the crash shows up in red as <span class="crash-tag">[CRASH]</span>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <p class="status-bar-field" id="st-listen">Starting…</p>
+    <p class="status-bar-field" id="st-devices">Phones: 0</p>
+    <p class="status-bar-field" id="st-lines">Lines: 0</p>
+    <p class="status-bar-field" id="st-crashes">Crashes: 0</p>
+  </div>
+</div>
+
+<div class="dialog-backdrop" id="dialog" hidden>
+  <div class="window dialog-window" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+    <div class="title-bar">
+      <div class="title-bar-text" id="dialog-title"></div>
+      <div class="title-bar-controls"><button aria-label="Close" data-dialog-close></button></div>
+    </div>
+    <div class="window-body">
+      <div id="dialog-body"></div>
+      <section class="field-row" style="justify-content:flex-end"><button data-dialog-close id="dialog-ok">OK</button></section>
+    </div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
